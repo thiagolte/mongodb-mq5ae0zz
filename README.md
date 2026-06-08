@@ -2,7 +2,7 @@
 
 This repo can be used to deploy [MongoDB] on Render.
 
-The [`Dockerfile`](./Dockerfile) on the `master` branch points to latest stable MongoDB version (**4.2**). We also provide dockerfiles for specific MongoDB release lines in this repository in appropriate branches.
+The [`Dockerfile`](./Dockerfile) on the `master` branch points to latest stable MongoDB version (**8.0**). We also provide dockerfiles for specific MongoDB release lines in this repository in appropriate branches.
 
 ## Deployment
 
