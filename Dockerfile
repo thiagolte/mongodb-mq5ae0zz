@@ -1,5 +1,26 @@
 FROM mongo:8.0
 
+# SERVER-121912: on Linux kernels 6.19 through 7.0.13 (which is what Render's
+# hosts run), mongod refuses to start with:
+#
+#   {"s":"F","c":"CONTROL","id":12257600,"msg":"MongoDB cannot start: Linux
+#    kernel versions 6.19 and newer has a known incompatibility with this
+#    version of MongoDB."}
+#
+# The conflict is in the vendored TCMalloc: by default MongoDB disables glibc's
+# own rseq registration (glibc.pthread.rseq=0) so TCMalloc can register rseq
+# itself, and that registration violates the rseq ABI enforced by kernel 6.19+.
+# mongod detects this unsafe configuration at startup and exits on purpose.
+#
+# Forcing glibc.pthread.rseq=1 makes TCMalloc use glibc's (ABI-correct) rseq
+# registration instead, which is the supported path on these kernels: the
+# startup check then passes and mongod runs normally. This affects only the
+# memory allocator's per-CPU fast path -- no data or configuration impact.
+#
+# Remove this line once Render moves to kernel 7.0.14 or later, where MongoDB
+# no longer needs the workaround.
+ENV GLIBC_TUNABLES=glibc.pthread.rseq=1
+
 # Enable Render SSH / Shell access for this Docker image.
 # See: https://render.com/docs/ssh#docker-specific-configuration
 #
